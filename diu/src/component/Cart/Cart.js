@@ -3,17 +3,75 @@ import TopNav from "../Layout/TopNav";
 import history from "../../helpers/history";
 import Footer from "../Layout/Footer";
 import CartItems from "./CartItems";
+import Popup from "reactjs-popup";
+import axios from "axios";
+
+import { connect } from "react-redux";
+
 class Cart extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      cartData: [],
+      subscriptionUse: false,
+      message: null
+    };
     this.proceedToCheckOut = this.proceedToCheckOut.bind(this);
   }
 
   proceedToCheckOut = e => {
     e.preventDefault();
-    history.push("/checkout");
+    history.push("/checkout", {
+      item: this.state.cartData,
+      subscriptionUse: this.state.subscriptionUse
+    });
   };
+  componentDidMount() {
+    this.getCartData();
+  }
+  getCartData() {
+    const { userDetails } = this.props;
+    const userid = userDetails.userid;
+    axios
+      .get(`http://localhost:3001/cartItem?userid=${userid}`)
+      .then(res => this.setState({ cartData: res.data }))
+      .catch(err => console.log(err));
+  }
+
+  totalAmount = () => {
+    const { cartData } = this.state;
+
+    var total = 0;
+    cartData.map(item => {
+      total = total + item.price * item.cartquantity;
+    });
+    return total;
+  };
+  toggleSubscription(props) {
+    const { userDetails } = this.props;
+    if (!this.state.subscriptionUse) {
+      axios
+        .post("http://localhost:3001/checksubscription", {
+          userid: userDetails.userid
+        })
+        .then(res => {
+          console.log(res);
+          if (res.data.length > 0) {
+            this.setState({ subscriptionUse: true, message: null });
+          } else {
+            this.setState({
+              subscriptionUse: false,
+              message: "Subscription Required"
+            });
+          }
+        })
+        .catch(err => console.log(err));
+    } else {
+      this.setState({ subscriptionUse: false, message: null });
+    }
+  }
   render() {
+    console.log(this.state.subscriptionUse);
     return (
       <div class="page-wrapper">
         <TopNav />
@@ -33,19 +91,21 @@ class Cart extends React.Component {
                 <div className="row">
                   <div className="col-lg-9">
                     <table className="table table-cart table-mobile">
-                      <thead>
-                        <tr>
-                          <th>Product</th>
-                          <th>Price</th>
-                          <th>Quantity</th>
-                          <th>Total</th>
-                          <th></th>
-                        </tr>
-                      </thead>
+                      {this.state.cartData.length > 0 && (
+                        <thead>
+                          <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                          </tr>
+                        </thead>
+                      )}
+                      {this.state.cartData.length === 0 && (
+                        <p>Nothing is on cart.</p>
+                      )}
 
-                      
-                        <CartItems />
-                     
+                      <CartItems item={this.state.cartData} />
                     </table>
                   </div>
                   <aside className="col-lg-3">
@@ -54,90 +114,37 @@ class Cart extends React.Component {
 
                       <table className="table table-summary">
                         <tbody>
-                          <tr className="summary-subtotal">
-                            <td>Subtotal:</td>
-                            <td>$160.00</td>
-                          </tr>
-                          <tr className="summary-shipping">
-                            <td>Shipping:</td>
-                            <td>&nbsp;</td>
-                          </tr>
-
-                          <tr className="summary-shipping-row">
-                            <td>
-                              <div className="custom-control custom-radio">
-                                <input
-                                  type="radio"
-                                  id="free-shipping"
-                                  name="shipping"
-                                  className="custom-control-input"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  for="free-shipping"
-                                >
-                                  Free Shipping
-                                </label>
-                              </div>
-                            </td>
-                            <td>$0.00</td>
-                          </tr>
-
-                          <tr className="summary-shipping-row">
-                            <td>
-                              <div className="custom-control custom-radio">
-                                <input
-                                  type="radio"
-                                  id="standart-shipping"
-                                  name="shipping"
-                                  className="custom-control-input"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  for="standart-shipping"
-                                >
-                                  Standart:
-                                </label>
-                              </div>
-                            </td>
-                            <td>$10.00</td>
-                          </tr>
-
-                          <tr className="summary-shipping-row">
-                            <td>
-                              <div className="custom-control custom-radio">
-                                <input
-                                  type="radio"
-                                  id="express-shipping"
-                                  name="shipping"
-                                  className="custom-control-input"
-                                />
-                                <label
-                                  className="custom-control-label"
-                                  for="express-shipping"
-                                >
-                                  Express:
-                                </label>
-                              </div>
-                            </td>
-                            <td>$20.00</td>
-                          </tr>
-
-                          <tr className="summary-shipping-estimate">
-                            <td>
-                              Estimate for Your Country<br></br>{" "}
-                              <a href="dashboard.html">Change address</a>
-                            </td>
-                            <td>&nbsp;</td>
-                          </tr>
-
                           <tr className="summary-total">
                             <td>Total:</td>
-                            <td>$160.00</td>
+                            <td>
+                              {this.state.subscriptionUse
+                                ? 0
+                                : this.totalAmount()}
+                              /-
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Use Subscription</td>
+                            <td>
+                              <a>
+                                <label className="switch">
+                                  <input
+                                    type="checkbox"
+                                    onChange={() =>
+                                      this.toggleSubscription(this.props)
+                                    }
+                                    defaultChecked={this.state.subscriptionUse}
+                                  />
+                                  <span class="slider round"></span>
+                                </label>
+                              </a>
+                            </td>
                           </tr>
                         </tbody>
                       </table>
-
+                      {this.state.message && (
+                        <p class="text-success">{this.state.message}</p>
+                      )}
                       <a
                         href="checkout.html"
                         className="btn btn-outline-primary-2 btn-order btn-block"
@@ -152,9 +159,16 @@ class Cart extends React.Component {
             </div>
           </div>
         </main>
+
         <Footer />
       </div>
     );
   }
 }
-export default Cart;
+function mapState(state) {
+  const { userDetails } = state.userInfo;
+  return { userDetails };
+}
+
+const actionCreators = {};
+export default connect(mapState, actionCreators)(Cart);

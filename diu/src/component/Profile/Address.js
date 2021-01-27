@@ -1,26 +1,29 @@
 import React from "react";
 import TopNav from "../Layout/TopNav";
 import Footer from "../Layout/Footer";
+import { connect } from "react-redux";
+import axios from "axios";
+import { userActions } from "../../store/actions/userAction";
 class Address extends React.Component {
   constructor(props) {
     super(props);
 
+    const { userDetails } = this.props;
     this.state = {
-      first_name: "",
-      last_name: "",
-      address: "",
-      apartment: "",
-      town: "",
-      district: "",
-      postCode: "",
-      phone_number: "",
-      email: "",
-      isToggle:false
+      first_name: userDetails.firstname ? userDetails.firstname : "",
+      last_name: userDetails.lastname ? userDetails.lastname : "",
+      address: userDetails.address ? userDetails.address : "",
+      apartment: userDetails.apartment ? userDetails.apartment : "",
+      town: userDetails.town ? userDetails.town : "",
+      district: userDetails.district ? userDetails.district : "",
+      postCode: userDetails.postCode ? userDetails.postCode : "",
+      phone_number: userDetails.phone_number ? userDetails.phone_number : "",
+      isToggle: false
     };
 
     this.handleOnSubmit = this.handleOnSubmit.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
-    this.toggle = this.toggle.bind(this)
+    this.toggle = this.toggle.bind(this);
   }
 
   handleOnChange = e => {
@@ -36,11 +39,41 @@ class Address extends React.Component {
 
   toggle = e => {
     e.preventDefault();
-    const {isToggle} = this.state
-    this.setState({isToggle:!isToggle})
+    const { isToggle } = this.state;
+
+    if (!this.state.isToggle) {
+      this.setState({ isToggle: !isToggle });
+    } else {
+      this.updateProfile();
+    }
   };
 
-  
+  updateProfile = () => {
+    const user = {};
+    user.firstname = this.state.first_name;
+    user.lastname = this.state.last_name;
+    user.address = this.state.address;
+    user.apartment = this.state.apartment;
+    user.town = this.state.town;
+    user.district = this.state.district;
+    user.postCode = this.state.postCode;
+    user.phone_number = this.state.phone_number;
+    console.log(user);
+    axios
+      .post("http://localhost:3001/updateProfile", {
+        user: user,
+        userid: this.props.userDetails.userid
+      })
+      .then(res => {
+        console.log(res);
+        this.props.update(res.data)
+        this.setState({ isToggle: !this.state.isToggle });
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({ isToggle: !this.state.isToggle });
+      });
+  };
 
   render() {
     const {
@@ -93,7 +126,7 @@ class Address extends React.Component {
                       />
                     </div>
                   </div>
-          
+
                   <label>Address *</label>
                   <input
                     type="text"
@@ -176,7 +209,7 @@ class Address extends React.Component {
                     class="btn btn-outline-primary-2 mt-3"
                     onClick={this.toggle}
                   >
-                    <span>{!isToggle?"EDIT":"SAVE CHANGES"}</span>
+                    <span>{!isToggle ? "EDIT" : "SAVE CHANGES"}</span>
                     <i class="icon-long-arrow-right"></i>
                   </button>
                 </form>
@@ -188,4 +221,12 @@ class Address extends React.Component {
     );
   }
 }
-export default Address;
+function mapState(state) {
+  const { userDetails } = state.userInfo;
+  return { userDetails };
+}
+
+const actionCreators = {
+  update:userActions.update
+};
+export default connect(mapState, actionCreators)(Address);

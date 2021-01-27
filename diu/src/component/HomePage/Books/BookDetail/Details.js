@@ -7,6 +7,7 @@ import history from "../../../../helpers/history";
 import Footer from "../../../Layout/Footer";
 class Details extends React.Component {
   render() {
+    const {item} = this.props.location.state
     return (
       <div class="ereaders-main-wrapper">
         <TopNav />
@@ -26,9 +27,7 @@ class Details extends React.Component {
             <div class="container">
               <div class="row">
                 <div class="col-md-12">
-                  <BookImagePanel />
-                  <BookDescription />
-                  <Review />
+                  <BookImagePanel item={item}/>
                 </div>
               </div>
             </div>

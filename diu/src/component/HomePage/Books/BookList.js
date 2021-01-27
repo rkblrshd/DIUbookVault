@@ -1,19 +1,27 @@
 import React from "react";
 import bookData from "../../../constant/bookData";
-import history from '../../../helpers/history'
+import history from "../../../helpers/history";
 import BookItem from "./BookItem";
+import axios from "axios";
 class BookList extends React.Component {
-  constructor(props){
-    super(props)
-    this.openBookDetailsButton = this.openBookDetailsButton.bind(this)
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      bookData: {}
+    };
+
+    this.openBookDetailsButton = this.openBookDetailsButton.bind(this);
   }
 
-  openBookDetailsButton = e =>{
-    e.preventDefault()
-    history.push('/book_details')
-  }
+  
+  openBookDetailsButton = e => {
+    e.preventDefault();
+    history.push("/book_details");
+  };
 
   render() {
+    const { bookData } = this.props;
     return (
       <div class="ereaders-main-content">
         <div class="ereaders-main-section">
@@ -22,16 +30,13 @@ class BookList extends React.Component {
               <div class="col-md-12">
                 <div class="ereaders-books ereaders-book-grid">
                   <ul class="row">
-                    {bookData &&
-                      bookData.map((item, key) => {
-                        return (
-                          <BookItem item={item} key={key}/>
-                        );
+                    {bookData.products &&
+                      bookData.products.map((item, key) => {
+                        return <BookItem item={item} key={key} />;
                       })}
                   </ul>
                 </div>
-
-                </div>
+              </div>
             </div>
           </div>
         </div>

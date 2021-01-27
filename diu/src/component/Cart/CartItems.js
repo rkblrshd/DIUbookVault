@@ -13,7 +13,7 @@ class CartItems extends React.Component {
     };
 
     this.upDateCartItemData = this.upDateCartItemData.bind(this);
-    this.handleOnChange = this.handleOnChange.bind(this)
+    this.handleOnChange = this.handleOnChange.bind(this);
   }
 
   upDateCartItemData = () => {
@@ -26,24 +26,22 @@ class CartItems extends React.Component {
     });
   };
 
-  handleOnChange = e =>{
-   
+  handleOnChange = e => {
     const { name, value } = e.target;
 
     this.setState({
-      [name]:  value,
+      [name]: value
     });
-  }
+  };
 
   render() {
-    const {item_price,quantity} = this.state
+    const { item } = this.props;
+
     return (
       <tbody>
-        {cartData &&
-          cartData.map((item, key) => {
-            return (
-              <CartItemDetails item={item} key={key}/>
-            );
+        {item &&
+          item.map((item, key) => {
+            return <CartItemDetails item={item} key={key} />;
           })}
       </tbody>
     );

@@ -1,25 +1,28 @@
 import React from "react";
 import TopNav from "../Layout/TopNav";
 import Footer from "../Layout/Footer";
+import FormData from "form-data";
+import { connect } from "react-redux";
+import axios from "axios";
 class Checkout extends React.Component {
   constructor(props) {
     super(props);
 
+    const { userDetails } = this.props;
     this.state = {
-      first_name: "",
-      last_name: "",
-      address: "",
-      apartment: "",
-      town: "",
-      district: "",
-      postCode: "",
-      phone_number: "",
-      email: "",
-      notes: ""
+      first_name: userDetails.firstname ? userDetails.firstname : "",
+      last_name: userDetails.lastname ? userDetails.lastname : "",
+      address: userDetails.address ? userDetails.address : "",
+      apartment: userDetails.apartment ? userDetails.apartment : "",
+      town: userDetails ? userDetails.town : "",
+      district: userDetails ? userDetails.district : "",
+      postCode: userDetails ? userDetails.postCode : "",
+      phone_number: userDetails ? userDetails.phone_number : "",
+      isPlaced: false
     };
 
     this.handleOnChange = this.handleOnChange.bind(this);
-    this.handleOnSubmit = this.handleOnSubmit.bind(this)
+    this.handleOnSubmit = this.handleOnSubmit.bind(this);
   }
 
   handleOnChange = e => {
@@ -29,20 +32,58 @@ class Checkout extends React.Component {
     });
   };
 
-  handleOnSubmit = e =>{
-    e.preventDefault()
-    console.log(this.state)
-  }
+  handleOnSubmit = e => {
+    e.preventDefault();
+    this.placeOrder();
+    console.log(this.state);
+  };
 
+  totalAmount = () => {
+    const { item } = this.props.location.state;
+
+    var total = 0;
+    item.map(item => {
+      total = total + item.price * item.cartquantity;
+    });
+    return total;
+  };
+
+  placeOrder = () => {
+    const { item, subscriptionUse } = this.props.location.state;
+    axios
+      .post("http://localhost:3001/order", {
+        item: item,
+        price: subscriptionUse ? 0 : this.totalAmount(),
+        userid: item[0].userid
+      })
+      .then(res => {
+        this.setState({ isPlaced: true });
+      })
+      .catch(err => console.log(err));
+  };
+  componentWillUnmount() {
+    this.setState({ isPlaced: false });
+  }
   render() {
-    const {first_name,last_name,address,apartment,town,district,phone_number,postCode,email,notes} = this.state
+    const {
+      first_name,
+      last_name,
+      address,
+      apartment,
+      town,
+      district,
+      phone_number,
+      postCode,
+      isPlaced
+    } = this.state;
+
+    const { item,subscriptionUse } = this.props.location.state;
+    console.log(item);
     return (
       <div class="ereaders-main-wrapper">
         <TopNav />
         <main class="main">
-          <div
-            class="page-header text-center"
-          >
+          <div class="page-header text-center">
             <div className="container">
               <h1 className="page-title">
                 Checkout <span>Shop</span>
@@ -154,27 +195,6 @@ class Checkout extends React.Component {
                           />
                         </div>
                       </div>
-
-                      <label>Email address *</label>
-                      <input
-                        type="email"
-                        name="email"
-                        onChange={this.handleOnChange}
-                        class="form-control"
-                        required
-                        value={email}
-                      />
-
-                      <label>Order notes (optional)</label>
-                      <textarea
-                        class="form-control"
-                        cols="30"
-                        rows="4"
-                        name="notes"
-                        value={notes}
-                        onChange={this.handleOnChange}
-                        placeholder="Notes about your order, e.g. special notes for delivery"
-                      ></textarea>
                     </div>
                     <aside class="col-lg-3">
                       <div class="summary">
@@ -189,32 +209,25 @@ class Checkout extends React.Component {
                           </thead>
 
                           <tbody>
-                            <tr>
-                              <td>
-                                <a href="#">
-                                  Beige knitted elastic runner shoes
-                                </a>
-                              </td>
-                              <td>$84.00</td>
-                            </tr>
-
-                            <tr>
-                              <td>
-                                <a href="#">Blue utility pinafore denimdress</a>
-                              </td>
-                              <td>$76,00</td>
-                            </tr>
-                            <tr class="summary-subtotal">
-                              <td>Subtotal:</td>
-                              <td>$160.00</td>
-                            </tr>
-                            <tr>
-                              <td>Shipping:</td>
-                              <td>Free shipping</td>
-                            </tr>
+                            {item &&
+                              item.map(item => {
+                                return (
+                                  <tr>
+                                    <td>
+                                      <a href="#">{item.fileName}</a>
+                                    </td>
+                                    <td>{item.price}/-</td>
+                                  </tr>
+                                );
+                              })}
                             <tr class="summary-total">
                               <td>Total:</td>
-                              <td>$160.00</td>
+                              <td>
+                                {subscriptionUse
+                                  ? 0
+                                  : this.totalAmount()}
+                                /-
+                              </td>
                             </tr>
                           </tbody>
                         </table>
@@ -237,6 +250,12 @@ class Checkout extends React.Component {
                             </div>
                           </div>
                         </div>
+                        {isPlaced && (
+                          <p class="text-success">
+                            Order has been placed. Please Check your orders in
+                            Account
+                          </p>
+                        )}
 
                         <button
                           type="submit"
@@ -258,4 +277,10 @@ class Checkout extends React.Component {
     );
   }
 }
-export default Checkout;
+function mapState(state) {
+  const { userDetails } = state.userInfo;
+  return { userDetails };
+}
+
+const actionCreators = {};
+export default connect(mapState, actionCreators)(Checkout);

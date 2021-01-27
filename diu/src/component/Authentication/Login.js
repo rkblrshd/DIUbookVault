@@ -1,5 +1,8 @@
 import React from "react";
 import history from "../../helpers/history";
+import axios from "axios";
+import { connect } from "react-redux";
+import { userActions } from "../../store/actions/userAction";
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -7,7 +10,8 @@ class Login extends React.Component {
     this.state = {
       email: "",
       password: "",
-      remember_me: ""
+      remember_me: "",
+      invalid: false
     };
 
     this.handleRegisterButton = this.handleRegisterButton.bind(this);
@@ -22,18 +26,35 @@ class Login extends React.Component {
 
   login = e => {
     e.preventDefault();
-    history.push("/home");
+    let formData = new FormData();
+    axios
+      .post("http://localhost:3001/login", {
+        email: this.state.email,
+        password: this.state.password
+      })
+      .then(res => {
+        if (res.data.length > 0) {
+          this.props.login(res.data[0]);
+          this.setState({ invalid: false });
+          history.push("/home");
+        } else {
+          console.log(res);
+          this.setState({ invalid: true });
+        }
+      })
+      .catch(err => console.log(err));
   };
 
   handleOnChange = e => {
-    const { name, value,checked } = e.target;
+    const { name, value, checked } = e.target;
     this.setState({
-      [name]: name === "remember_me" ? checked : value,
+      [name]: name === "remember_me" ? checked : value
     });
   };
 
   render() {
-    const { props } = this.props;
+    const { userDetails } = this.props;
+    console.log(userDetails);
     const { email, password, remember_me } = this.state;
     return (
       <div className="login-3 tab-box">
@@ -43,7 +64,7 @@ class Login extends React.Component {
               <div className="login-inner-form">
                 <div className="details">
                   <a href="#">
-                    <img src='./assets/images/logo.png' alt="logo"/>
+                    <img src="./assets/images/logo.png" alt="logo" />
                   </a>
                   <h3>Sign into your account</h3>
                   <form>
@@ -83,6 +104,11 @@ class Login extends React.Component {
                       </div>
                       <a href="forgot-password-3.html">Forgot Password</a>
                     </div>
+                    {this.state.invalid && (
+                      <div className='mt-4 mb-4'>
+                        <p class="text-success">Invalid Credential</p>
+                      </div>
+                    )}
                     <div className="form-group">
                       <button
                         type="submit"
@@ -112,7 +138,8 @@ class Login extends React.Component {
                 </div>
                 <h3>DIU BOOK VAULT</h3>
                 <p>
-                Good friends, good books, and a sleepy conscience: this is the ideal life.
+                  Good friends, good books, and a sleepy conscience: this is the
+                  ideal life.
                 </p>
               </div>
             </div>
@@ -122,4 +149,13 @@ class Login extends React.Component {
     );
   }
 }
-export default Login;
+
+function mapState(state) {
+  const { userDetails } = state.userInfo;
+  return { userDetails };
+}
+
+const actionCreators = {
+  login: userActions.login
+};
+export default connect(mapState, actionCreators)(Login);

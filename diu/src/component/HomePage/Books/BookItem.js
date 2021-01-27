@@ -1,29 +1,40 @@
 import React from "react";
 import history from "../../../helpers/history";
+import axios from "axios";
+import { connect } from "react-redux";
 class BookItem extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleAddToCartButton = this.handleAddToCartButton.bind(this)
+    this.handleAddToCartButton = this.handleAddToCartButton.bind(this);
   }
 
-  handleAddToCartButton = e =>{
-      e.preventDefault()
-      history.push('/cart_details')
-  }
-  openBookDetailsButton = e =>{
-    e.preventDefault()
-    history.push('/book_details')
-  }
-
+  handleAddToCartButton = e => {
+    e.preventDefault();
+    // history.push("/cart_details");
+    const { item,userDetails } = this.props;
+    
+    axios
+      .post("http://localhost:3001/addtocart", {
+        bookid: item.bookid,
+        userid:userDetails.userid
+      })
+      .then(res => console.log(res))
+      .catch(err => console.log(err));
+  };
+  openBookDetailsButton = e => {
+    e.preventDefault();
+    history.push("/book_details", { item: this.props.item });
+  };
 
   render() {
     const { item } = this.props;
+    console.log(item.imgsrc)
     return (
       <li class="col-md-3">
         <figure>
           <a href="book-detail.html">
-            <img src={item.image_src} alt="" />
+            <img src={item.imgsrc} alt="" />
           </a>
           <figcaption>
             <a
@@ -32,31 +43,19 @@ class BookItem extends React.Component {
               data-toggle="tooltip"
               title="Download"
             ></a>
-            {/* <a
-                                href="#"
-                                class="icon ereaders-heart"
-                                data-toggle="tooltip"
-                                title="Add To Wishlist"
-                              ></a>
-                              <a
-                                href="#"
-                                class="icon ereaders-reload"
-                                data-toggle="tooltip"
-                                title="Reload"
-                              ></a> */}
           </figcaption>
         </figure>
         <div class="ereaders-book-grid-text">
           <h2>
             <a href="book-detail.html" onClick={this.openBookDetailsButton}>
-              {item.book_name}
+              {item.fileName}
             </a>
           </h2>
-          <span>{item.book_price}/-</span>
+          <span>{item.price}/-</span>
           <div>
             <a
               href="book-detail.html"
-              class="ereaders-simple-btn ereaders-bgcolor mt-2"
+              class="ereaders-simple-btn ereaders-bgcolor mt-5 "
               onClick={this.handleAddToCartButton}
             >
               Add To Cart
@@ -67,4 +66,11 @@ class BookItem extends React.Component {
     );
   }
 }
-export default BookItem;
+
+function mapState(state) {
+  const { userDetails } = state.userInfo;
+  return { userDetails };
+}
+
+const actionCreators = {};
+export default connect(mapState, actionCreators)(BookItem);

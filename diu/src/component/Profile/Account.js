@@ -3,6 +3,8 @@ import TopNav from "../Layout/TopNav";
 import Footer from "../Layout/Footer";
 import Address from "./Address";
 import AccountDetails from "./ChangePass";
+import Subscription from "../Subscription/Subscription";
+import OrderPage from "./OrderPage";
 class Account extends React.Component {
   constructor(props) {
     super(props);
@@ -33,19 +35,6 @@ class Account extends React.Component {
                       >
                         <li class="nav-item">
                           <a
-                            class="nav-link active"
-                            id="tab-dashboard-link"
-                            data-toggle="tab"
-                            href="#tab-dashboard"
-                            role="tab"
-                            aria-controls="tab-dashboard"
-                            aria-selected="true"
-                          >
-                            Dashboard
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a
                             class="nav-link"
                             id="tab-orders-link"
                             data-toggle="tab"
@@ -57,19 +46,7 @@ class Account extends React.Component {
                             Orders
                           </a>
                         </li>
-                        <li class="nav-item">
-                          <a
-                            class="nav-link"
-                            id="tab-downloads-link"
-                            data-toggle="tab"
-                            href="#tab-downloads"
-                            role="tab"
-                            aria-controls="tab-downloads"
-                            aria-selected="false"
-                          >
-                            Downloads
-                          </a>
-                        </li>
+
                         <li class="nav-item">
                           <a
                             class="nav-link"
@@ -97,8 +74,16 @@ class Account extends React.Component {
                           </a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" href="#">
-                            Sign Out
+                          <a
+                            class="nav-link"
+                            id="tab-subscription-link"
+                            data-toggle="tab"
+                            href="#tab-subscription"
+                            role="tab"
+                            aria-controls="subscription"
+                            aria-selected="false"
+                          >
+                            Subscription
                           </a>
                         </li>
                       </ul>
@@ -108,75 +93,21 @@ class Account extends React.Component {
                   <div class="col-md-8 col-lg-9">
                     <div class="tab-content">
                       <div
-                        class="tab-pane fade show active"
-                        id="tab-dashboard"
-                        role="tabpanel"
-                        aria-labelledby="tab-dashboard-link"
-                      >
-                        <p>
-                          Hello{" "}
-                          <span class="font-weight-normal text-dark">User</span>{" "}
-                          (not{" "}
-                          <span class="font-weight-normal text-dark">User</span>
-                          ? <a href="#">Log out</a>)<br></br>
-                          From your account dashboard you can view your{" "}
-                          <a
-                            href="#tab-orders"
-                            class="tab-trigger-link link-underline"
-                          >
-                            recent orders
-                          </a>
-                          , manage your{" "}
-                          <a href="#tab-address" class="tab-trigger-link">
-                            shipping and billing addresses
-                          </a>
-                          , and{" "}
-                          <a href="#tab-changepass" class="tab-trigger-link">
-                            edit your password and account details
-                          </a>
-                          .
-                        </p>
-                      </div>
-
-                      <div
                         class="tab-pane fade"
                         id="tab-orders"
                         role="tabpanel"
                         aria-labelledby="tab-orders-link"
                       >
-                        <p>No order has been made yet.</p>
-                        <a
-                          href="category.html"
-                          class="btn btn-outline-primary-2"
-                        >
-                          <span>GO SHOP</span>
-                          <i class="icon-long-arrow-right"></i>
-                        </a>
+                        <OrderPage />
                       </div>
 
                       <div
-                        class="tab-pane fade"
-                        id="tab-downloads"
-                        role="tabpanel"
-                        aria-labelledby="tab-downloads-link"
-                      >
-                        <p>No downloads available yet.</p>
-                        <a
-                          href="category.html"
-                          class="btn btn-outline-primary-2"
-                        >
-                          <span>GO SHOP</span>
-                          <i class="icon-long-arrow-right"></i>
-                        </a>
-                      </div>
-
-                      <div
-                        class="tab-pane fade"
+                        class="tab-pane fade  show active"
                         id="tab-address"
                         role="tabpanel"
                         aria-labelledby="tab-address-link"
                       >
-                        <Address/>
+                        <Address />
                       </div>
                       <div
                         class="tab-pane fade"
@@ -184,7 +115,15 @@ class Account extends React.Component {
                         role="tabpanel"
                         aria-labelledby="tab-changepass-link"
                       >
-                        <AccountDetails/>
+                        <AccountDetails />
+                      </div>
+                      <div
+                        class="tab-pane fade"
+                        id="tab-subscription"
+                        role="tabpanel"
+                        aria-labelledby="tab-subscription-link"
+                      >
+                        <Subscription />
                       </div>
                     </div>
                   </div>

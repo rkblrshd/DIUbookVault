@@ -1,5 +1,6 @@
 import React from "react";
 import history from "../../helpers/history";
+import axios from "axios";
 class Register extends React.Component {
   constructor(props) {
     super(props);
@@ -10,6 +11,7 @@ class Register extends React.Component {
       confirm_password: "",
       first_name: "",
       last_name: "",
+      invalid: false
     };
 
     this.handleLoginButton = this.handleLoginButton.bind(this);
@@ -28,8 +30,48 @@ class Register extends React.Component {
     });
   };
 
+  getIdFromString() {
+    const { email } = this.state;
+
+    var userid = email.replace(/\D/g, "");
+    return userid;
+  }
+
   handleOnSubmit = e => {
     e.preventDefault();
+
+    var check = this.state.email.includes("@diu.edu.bd");
+
+    var check2 = this.state.email.includes(this.state.first_name.toLowerCase());
+
+    var check3 = this.state.email.includes(this.state.last_name.toLowerCase());
+    var check4 = this.state.email.split("-")[0].includes("15");
+
+    if (check && (check2 || check3) && check4) {
+      axios
+        .post("http://localhost:3001/signup", {
+          email: this.state.email,
+          password: this.state.password,
+          first_name: this.state.first_name,
+          last_name: this.state.last_name,
+          userid: this.getIdFromString()
+        })
+        .then(res => {
+          history.push("./login");
+          this.setState({ invalid: "" });
+        })
+        .catch(err => console.log(err));
+    } else {
+      if (!check2 || !check3) {
+        this.setState({
+          invalid: "Email name doesn't match with first or last name"
+        });
+      } else {
+        this.setState({
+          invalid: "Email format is invalid. Ex: abc15-XXXX@diu.edu.bd"
+        });
+      }
+    }
   };
 
   render() {
@@ -60,7 +102,7 @@ class Register extends React.Component {
                         class="input-text"
                         value={first_name}
                         onChange={this.handleOnChange}
-                        placeholder="First Name"
+                        placeholder="DIU First Name"
                       />
                     </div>
 
@@ -71,7 +113,7 @@ class Register extends React.Component {
                         class="input-text"
                         value={last_name}
                         onChange={this.handleOnChange}
-                        placeholder="Last Name"
+                        placeholder="DIU Last Name"
                       />
                     </div>
                     <div class="form-group">
@@ -80,7 +122,7 @@ class Register extends React.Component {
                         name="email"
                         class="input-text"
                         value={email}
-                        placeholder="Email Address"
+                        placeholder="DIU Email Address"
                         onChange={this.handleOnChange}
                       />
                     </div>
@@ -104,8 +146,19 @@ class Register extends React.Component {
                         placeholder="Confirm Password"
                       />
                     </div>
+                    {(
+                      <div>
+                        <p class="text-success">
+                          {this.state.invalid}
+                        </p>
+                      </div>
+                    )}
                     <div class="form-group">
-                      <button type="submit" class="btn-md btn-theme btn-block" onClick={this.handleLoginButton}>
+                      <button
+                        type="submit"
+                        class="btn-md btn-theme btn-block"
+                        onClick={this.handleOnSubmit}
+                      >
                         Login
                       </button>
                     </div>
@@ -132,7 +185,8 @@ class Register extends React.Component {
                 </div>
                 <h3>DIU BOOK VAULT</h3>
                 <p>
-                Good friends, good books, and a sleepy conscience: this is the ideal life.
+                  Good friends, good books, and a sleepy conscience: this is the
+                  ideal life.
                 </p>
               </div>
             </div>

@@ -6,10 +6,10 @@ class CartItemDetails extends React.Component {
     super(props);
 
     this.state = {
-      item_name: "",
-      item_price: "",
-      item_source: "",
-      quantity: ""
+      fileName: "",
+      price: "",
+      imgsrc: "",
+      cartquantity: ""
     };
 
     this.upDateCartItemData = this.upDateCartItemData.bind(this);
@@ -20,13 +20,13 @@ class CartItemDetails extends React.Component {
   }
 
   upDateCartItemData = () => {
-    const { item_name, item_price, item_source, quantity } = this.props.item;
+    const { fileName, price, imgsrc, cartquantity } = this.props.item;
     
     this.setState({
-      item_name: item_name,
-      item_price: item_price,
-      item_source: item_source,
-      quantity: quantity
+      fileName: fileName,
+      price: price,
+      imgsrc: imgsrc,
+      cartquantity: cartquantity
     });
   };
 
@@ -39,7 +39,7 @@ class CartItemDetails extends React.Component {
   };
 
   render() {
-    const { item_price, quantity } = this.state;
+    const { price, cartquantity } = this.state;
     const {item} = this.props
     console.log(this.state)
     return (
@@ -48,38 +48,38 @@ class CartItemDetails extends React.Component {
           <div className="product">
             <figure className="product-media">
               <a href="#">
-                <img src={item.item_source} alt="Product image" />
+                <img src={item.imgsrc} alt="Product image"  width="200" height="200"/>
               </a>
             </figure>
 
-            <h4 className="product-title">
-              <a href="#">{item.item_name}</a>
-            </h4>
+            <h6 className="product-title">
+              <a href="#">{item.fileName}</a>
+            </h6>
           </div>
         </td>
-        <td className="price-col">{item.item_price}/-</td>
-        <td className="quantity-col">
-          <div className="cart-product-quantity">
+        <td className="price-col">{item.price}/-</td>
+        <td className="cartquantity-col">
+          <div className="cart-product-cartquantity">
             <input
               type="number"
               className="form-control"
-              value={quantity}
+              value={cartquantity}
               min="1"
               max="10"
               step="1"
               data-decimals="0"
               required
-              name="quantity"
+              name="cartquantity"
               onChange={this.handleOnChange}
             />
           </div>
         </td>
-        <td className="total-col">{item.item_price * quantity}/-</td>
-        <td className="remove-col">
+        <td className="total-col">{item.price * cartquantity}/-</td>
+        {/* <td className="remove-col">
           <button className="btn-remove">
             <i className="icon-close"></i>
           </button>
-        </td>
+        </td> */}
       </tr>
     );
   }
